@@ -1,5 +1,5 @@
 <!doctype html><html lang="pt-BR"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
-<title>Arquipélago Byte – Recuperação</title>
+<title>Arquipélago Byte</title>
 <style>
 :root{--mar1:#0b3d5c;--mar2:#11698e;--areia:#f6e3b4;--tinta:#10202b;--card:#ffffff;--suave:#5b6b75;--ok:#1f9d55;--pa:#e0a100;--na:#d64545;--azul:#1d6fb8}
 *{box-sizing:border-box}html,body{margin:0;min-height:100%}
@@ -31,7 +31,7 @@ label{font-weight:600;display:block;margin:10px 0 4px}
 .q{font-size:20px;font-weight:600;margin:6px 0 12px;white-space:pre-wrap}
 pre.cod{background:#0f2230;color:#e8f6ff;border-radius:12px;padding:14px;font-size:16px;overflow:auto;font-family:Consolas,"Courier New",monospace}
 .ops{display:grid;gap:10px}.op{text-align:left;background:#f1f6f9;color:var(--tinta);border:2px solid #d5e1e8;font-weight:500}
-.op:hover{border-color:var(--azul)}.op.certa{background:#d8f3e3;border-color:var(--ok)}.op.errada{background:#fde0e0;border-color:var(--na)}
+.op:hover{border-color:var(--azul)}.op.marcada{background:#e3eefc;border-color:var(--azul)}.op.certa{background:#d8f3e3;border-color:var(--ok)}.op.errada{background:#fde0e0;border-color:var(--na)}
 .fb{border-radius:12px;padding:12px;margin-top:12px;font-weight:500}.fb.ok{background:#d8f3e3}.fb.no{background:#fde0e0}.fb.meio{background:#fff1c7}
 .tag{display:inline-block;font-size:12px;background:#e8eef2;border-radius:8px;padding:2px 8px;margin-right:6px;color:var(--suave)}
 .linha{display:flex;gap:10px;flex-wrap:wrap;align-items:center}
@@ -41,7 +41,7 @@ table{border-collapse:collapse;width:100%;font-size:14px}th,td{border:1px solid 
 @media (max-width:600px){body{font-size:16px}.q{font-size:18px}main{padding:10px}}
 </style>
 </head><body>
-<header><h1>🏝️ Arquipélago Byte · Recuperação</h1><span class="sp"></span><span id="quem"></span><button id="bMapa" class="sec" style="display:none">Mapa</button><button id="bProf">Professor</button></header>
+<header><h1>🏝️ Arquipélago Byte</h1><span class="sp"></span><span id="quem"></span><button id="bMapa" class="sec" style="display:none">Mapa</button><button id="bProf">🔒 Área do professor</button></header>
 <main id="app"></main>
 <script>
 // ===================== ARQUIPÉLAGO BYTE: RECUPERAÇÃO (turma 202600029, Técnico em IA, 1º ano) =====================
@@ -515,6 +515,7 @@ function salvar(){S.ts=Date.now();try{localStorage.setItem(chaveAluno(S.nome),JS
 function carregarLocal(n){try{return JSON.parse(localStorage.getItem(chaveAluno(n))||'null')}catch(e){return null}}
 function novoCodigo(){const L='ABCDEFGHJKLMNPQRSTUVWXYZ23456789';let c='';for(let i=0;i<6;i++)c+=L[Math.floor(Math.random()*L.length)];return c}
 function estadoUC(id){if(!S.ucs[id])S.ucs[id]={niv:[],chef:null,recs:[]};return S.ucs[id]}
+function numeroPessoal(nome){let h=7;for(const c of normNome(nome))h=(h*31+c.charCodeAt(0))%9973;return 2+h%8}
 const X=()=>S.X;
 // ---------- correção ----------
 function textoPergunta(q){return typeof q.q==='function'?q.q(X()):q.q}
@@ -536,42 +537,41 @@ function recA(id,k,r){const soma=r.res.reduce((a,x,i)=>a+ajust(id,'r'+k+'_'+i,x.
 // ajustes do professor (só existem no navegador do professor; o aluno usa a correção automática)
 let AJ={};function ajust(id,k,r){const a=AJ[(S&&normNome(S.nome))||'']||{};const v=a[id+'|'+k];return v===undefined?r:v}
 // ---------- telas ----------
-function cab(){$('#quem').textContent=S?`${S.nome} · nº ${S.chamada} · X = ${S.X}`:'';$('#bMapa').style.display=S?'':'none'}
-function telaInicio(){S=null;cab();app.innerHTML=`<div class="card"><h2>Bem-vindo(a) ao Arquipélago Byte: Recuperação</h2>
-<p>São <b>9 ilhas</b>, uma para cada unidade curricular do 1º ano. Em cada ilha há <b>10 níveis</b> e um <b>chefão</b>. No fim, você recebe a menção <b>A</b>, <b>PA</b> ou <b>NA</b>.</p>
-<p>Ficou com PA ou NA? Faça o <b>desafio de recuperação</b> (5 perguntas novas) quantas vezes precisar, até conseguir <b>A</b>.</p>
+function cab(){$('#quem').textContent=S?`${S.nome} · seu número: ${S.X}`:'';$('#bMapa').style.display=S?'':'none'}
+function telaInicio(){S=null;cab();app.innerHTML=`<div class="card"><h2>Bem-vindo(a) ao Arquipélago Byte</h2>
+<p>São <b>9 ilhas</b>, uma para cada unidade curricular do 1º ano. Em cada ilha há <b>10 níveis</b> e um <b>chefão</b>. O seu resultado da ilha aparece só quando você termina o chefão.</p>
+<p>Se a ilha pedir, faça o <b>desafio extra</b> (5 perguntas novas) quantas vezes precisar, até a ilha ficar concluída.</p>
 <p class="peq">Regras: cada pergunta vale na primeira resposta. Nas dissertativas, digite com as suas palavras: <b>colar não funciona</b> e textos com cara de IA são recusados.</p>
-<label>Nome completo</label><input id="iNome" autocomplete="off">
-<label>Número da chamada</label><input id="iCham" type="number" min="1" max="60">
+<label>Nome completo (nome e todos os sobrenomes, igual à lista de chamada)</label><input id="iNome" autocomplete="off">
 <label>Código de continuação (só se começou em outro computador)</label><input id="iCod" placeholder="opcional" autocomplete="off" style="text-transform:uppercase">
 <p><button id="bEntrar">Entrar</button></p><p id="msg" class="peq"></p></div>`;
- $('#bEntrar').onclick=async()=>{const nome=$('#iNome').value.trim().replace(/\s+/g,' '),ch=parseInt($('#iCham').value,10),cod=$('#iCod').value.trim().toUpperCase();
-  if(nome.split(' ').length<2){$('#msg').textContent='Escreva o nome e o sobrenome.';return}
-  if(!(ch>=1&&ch<=60)){$('#msg').textContent='Número da chamada inválido.';return}
+ $('#bEntrar').onclick=async()=>{const nome=$('#iNome').value.trim().replace(/\s+/g,' ').toLowerCase().replace(/(^|\s)\S/g,c=>c.toUpperCase()),cod=$('#iCod').value.trim().toUpperCase();
+  const partes=nome.split(' ').filter(p=>p.replace(/[^a-zA-ZÀ-ÿ]/g,'').length>=2);
+  if(partes.length<3&&!confirm('Esse é o seu nome COMPLETO, com todos os sobrenomes? '+nome)){$('#msg').textContent='Escreva o nome completo, com todos os sobrenomes.';return}
+  if(partes.length<2){$('#msg').textContent='Escreva o nome completo, com todos os sobrenomes.';return}
   let s=carregarLocal(nome);
   if(cod&&(!s||s.cod!==cod)){$('#msg').textContent='Buscando o seu progresso na planilha...';const r=await nuvemRetomar(nome,cod);if(r&&r.S)s=r.S;else{$('#msg').textContent='Não achei esse código para esse nome. Confira ou peça ajuda ao professor.';return}}
-  if(s&&s.chamada!==ch){$('#msg').textContent=`Esse nome já está registrado com o nº ${s.chamada}. Confira o número.`;return}
-  S=s||{v:1,jogo:'rec',nome,chamada:ch,X:ch%10+1,cod:novoCodigo(),ucs:{},ini:Date.now()};salvar();telaMapa()}}
+  S=s||{v:2,jogo:'rec',nome,X:numeroPessoal(nome),cod:novoCodigo(),ucs:{},ini:Date.now()};salvar();telaMapa()}}
 function desenhoIlha(u,i){const r=(n)=>{let h=i*97+n*31;return(h%37)/37};
  const pts=[];for(let k=0;k<12;k++){const a=k/12*Math.PI*2,R=38+r(k)*12;pts.push([100+Math.cos(a)*R*1.7,58+Math.sin(a)*R*0.75])}
  const d='M'+pts.map(p=>p.map(v=>v.toFixed(1)).join(',')).join(' L')+' Z';
  return`<svg viewBox="0 0 200 110"><ellipse cx="100" cy="66" rx="92" ry="36" fill="#7fd0e8" opacity=".55"/><path d="${d}" fill="${u.cor}" stroke="#fff" stroke-width="3"/>
  <path d="${d}" fill="#000" opacity=".08" transform="translate(0,6)"/><circle cx="${70+r(3)*60}" cy="48" r="9" fill="#fff" opacity=".85"/>
  <path d="M${120+r(5)*20},62 l0,-26 m0,0 c-14,-2 -18,6 -22,10 m22,-10 c12,-6 18,0 22,6" stroke="#2d5016" stroke-width="3" fill="none"/></svg>`}
-function telaMapa(){cab();const linhas=UCS.map((u,i)=>{const r=resumoUC(u);const sel=r.final?`<span class="selo ${r.final}">${r.final}${r.recOk&&r.m!=='A'?' (rec.)':''}</span>`:`<span class="selo nd">${r.feitos}/10</span>`;
+function telaMapa(){cab();const linhas=UCS.map((u,i)=>{const r=resumoUC(u);const sel=r.final==='A'?`<span class="selo A">✔ Concluída</span>`:r.m?`<span class="selo PA">Desafio extra</span>`:`<span class="selo nd">${r.feitos}/10</span>`;
   return`<div class="ilha" data-i="${i}">${sel}${desenhoIlha(u,i)}<h3>${esc(u.nome)}</h3><div class="uc">${esc(u.uc)} · ${u.ch}</div><div class="barra"><i style="width:${Math.min(100,(r.feitos+(r.m?1:0))/11*100)}%"></i></div></div>`}).join('');
- const nA=UCS.filter(u=>resumoUC(u).final==='A').length;
- app.innerHTML=`<div class="card linha"><div><b>Seu código de continuação: <span style="font-size:22px;letter-spacing:2px">${S.cod}</span></b><div class="peq">Anote. Ele serve para continuar em outro computador.</div></div><span class="sp" style="flex:1"></span><div><b>${nA}/9</b> ilhas com A</div></div><div class="mapa">${linhas}</div>`;
+ const nA=UCS.filter(u=>resumoUC(u).final==='A').length;const nT=UCS.filter(u=>resumoUC(u).m).length;
+ app.innerHTML=`<div class="card linha"><div><b>Seu código de continuação: <span style="font-size:22px;letter-spacing:2px">${S.cod}</span></b><div class="peq">Anote. Ele serve para continuar em outro computador.</div></div><span class="sp" style="flex:1"></span><div>${nT<9?`<b>${nT}/9</b> ilhas terminadas`:`<b>Você terminou as 9 ilhas!</b> ${nA}/9 concluídas`}</div></div><div class="mapa">${linhas}</div>`;
  app.querySelectorAll('.ilha').forEach(el=>el.onclick=()=>telaIlha(UCS[+el.dataset.i]))}
 function telaIlha(u){const e=estadoUC(u.id),r=resumoUC(u);
- const bol=u.niveis.map((q,k)=>{const x=e.niv[k];const cl=x?(x.r===1?'feito':x.r>0?'meio':'errado'):(k===e.niv.filter(Boolean).length?'atual':'');return`<div class="nivel ${cl}" title="Nível ${k+1}">${k+1}</div>`}).join('');
+ const bol=u.niveis.map((q,k)=>{const x=e.niv[k];const cl=x?'feito':(k===e.niv.filter(Boolean).length?'atual':'');return`<div class="nivel ${cl}" title="Nível ${k+1}">${k+1}</div>`}).join('');
  const chefeCl=e.chef&&e.chef.res.length===5?'feito':(e.niv.filter(Boolean).length===10?'atual':'');
  let info='',acao='';const prox=e.niv.filter(Boolean).length;
  if(prox<10)acao=`<button id="bJog">${prox?'Continuar no nível '+(prox+1):'Começar o nível 1'}</button>`;
  else if(!e.chef||e.chef.res.length<5)acao=`<button id="bChefe">Enfrentar o chefão (5 perguntas)</button>`;
- if(r.m){info=`<p>Resultado: níveis <b>${r.pn}/10</b> · chefão <b>${r.pc}/5</b> · aproveitamento <b>${Math.round(r.pct*100)}%</b> → menção <span class="selo ${r.m}" style="position:static">${r.m}</span></p>`;
-  if(r.final==='A'&&r.m!=='A')info+=`<p class="fb ok">Recuperação concluída com A depois de ${r.tent} tentativa(s). Parabéns!</p>`;
-  else if(r.m!=='A'){const em=e.recs.find(x=>x.res.length<5);info+=`<p class="fb meio">Você precisa do desafio de recuperação: 5 perguntas novas. Para tirar A, acerte pelo menos 4 e tenha a dissertativa aceita.${r.tent?` Tentativas até agora: ${r.tent}.`:''}</p>`;acao=`<button id="bRec">${em?'Continuar a recuperação':'Fazer o desafio de recuperação'}</button>`}}
+ if(r.m){if(r.m==='A')info=`<p class="fb ok"><b>Ilha concluída!</b> Você terminou os níveis e o chefão com a menção <span class="selo A" style="position:static">A</span></p>`;
+  else if(r.final==='A')info=`<p class="fb ok"><b>Ilha concluída!</b> Você venceu o desafio extra e ficou com a menção <span class="selo A" style="position:static">A</span></p>`;
+  else{const em=e.recs.find(x=>x.res.length<5);info=`<p class="fb meio">Você terminou a ilha com a menção <span class="selo ${r.m}" style="position:static">${r.m}</span>. Para concluir com A, faça o desafio extra: 5 perguntas novas, com pelo menos 1 dissertativa. Você pode tentar quantas vezes precisar.</p>`;acao=`<button id="bRec">${em?'Continuar o desafio extra':'Fazer o desafio extra'}</button>`}}
  app.innerHTML=`<div class="card"><div class="linha"><button class="sec" id="bVolta">← Mapa</button><h2 style="margin:0">${esc(u.nome)}</h2></div>
  <p class="peq">${esc(u.uc)} · ${u.ch}</p><div class="trilha">${bol}<div class="nivel chefe ${chefeCl}">👑 Chefão</div></div>${info}<p>${acao}</p>
  <details><summary class="peq">Indicadores desta UC (Plano de Curso)</summary><ol class="peq">${Object.entries(u.inds).map(([n,t])=>`<li value="${n}">${esc(t)}</li>`).join('')}</ol></details></div>`;
@@ -587,10 +587,10 @@ function jogarNivel(u){const e=estadoUC(u.id),k=e.niv.filter(Boolean).length;if(
  mostrarPergunta(u,u.niveis[k],`Nível ${k+1} de 10`,res=>{e.niv[k]=res;salvar()},()=>jogarNivel(u))}
 function jogarLista(u,tipo){const e=estadoUC(u.id);const alvo=tipo==='chef'?e.chef:e.recs.find(x=>x.res.length<5);
  if(!alvo||alvo.res.length>=5)return fimLista(u,tipo);const k=alvo.res.length,q=(tipo==='chef'?u.chefao:u.rec)[alvo.sorteio[k]];
- mostrarPergunta(u,q,`${tipo==='chef'?'👑 Chefão':'🔁 Recuperação'}: pergunta ${k+1} de 5`,res=>{alvo.res[k]=res;salvar()},()=>jogarLista(u,tipo))}
+ mostrarPergunta(u,q,`${tipo==='chef'?'👑 Chefão':'🔁 Desafio extra'}: pergunta ${k+1} de 5`,res=>{alvo.res[k]=res;salvar()},()=>jogarLista(u,tipo))}
 function fimLista(u,tipo){const e=estadoUC(u.id);if(tipo==='rec'){const k=e.recs.length-1,r=e.recs[k];const ok=recA(u.id,k,r);const soma=r.res.reduce((a,x)=>a+x.r,0);
-  app.innerHTML=`<div class="card"><h2>${ok?'🎉 Recuperação concluída: A!':'Ainda não foi desta vez'}</h2><p>Você fez <b>${soma}</b> de 5 pontos.</p>${ok?'':(soma>=4?'<p><b>Você chegou a 4 pontos, mas a dissertativa não foi aceita.</b> Para A, ela precisa ser aceita (ao menos em parte).</p>':'<p>Para A, precisa de 4 pontos e da dissertativa aceita.</p>')}
-  ${ok?'':'<p>Revise as explicações e tente de novo: as perguntas serão outras.</p>'}<p><button id="bOk">Voltar à ilha</button></p></div>`;$('#bOk').onclick=()=>telaIlha(u);return}
+  app.innerHTML=`<div class="card"><h2>${ok?'🎉 Ilha concluída com A!':'Ainda não foi desta vez'}</h2>
+  ${ok?'':'<p>Estude de novo o conteúdo desta unidade e faça outro desafio extra: as perguntas serão outras.</p>'}<p><button id="bOk">Voltar à ilha</button></p></div>`;$('#bOk').onclick=()=>telaIlha(u);return}
  telaIlha(u)}
 function mostrarPergunta(u,q,titulo,gravar,seguir){const ind=u.inds[q.i];
  const cod=q.c?`<pre class="cod nosel">${esc(q.c)}</pre>`:'';let txtQ=textoPergunta(q),codTxt='';
@@ -599,9 +599,9 @@ function mostrarPergunta(u,q,titulo,gravar,seguir){const ind=u.inds[q.i];
  <div class="q nosel">${esc(txtQ)}</div>${cod}${codTxt}<div id="resp"></div><div id="fb"></div></div>`;
  const resp=$('#resp');
  if(q.tipo==='mc'){const ord=embaralhar(q.o.map((t,i)=>i));resp.innerHTML=`<div class="ops">${ord.map(i=>`<button class="op nosel" data-i="${i}">${esc(q.o[i])}</button>`).join('')}</div>`;
-  resp.querySelectorAll('.op').forEach(b=>b.onclick=()=>{const i=+b.dataset.i,ok=i===0;resp.querySelectorAll('.op').forEach(x=>{x.disabled=true;if(+x.dataset.i===0)x.classList.add('certa')});if(!ok)b.classList.add('errada');
+  resp.querySelectorAll('.op').forEach(b=>b.onclick=()=>{const i=+b.dataset.i,ok=i===0;resp.querySelectorAll('.op').forEach(x=>{x.disabled=true});b.classList.add('marcada');
    gravar({tipo:'mc',r:ok?1:0,esc:q.o[i],t:Date.now()});
-   $('#fb').innerHTML=`<div class="fb ${ok?'ok':'no'}"><b>${ok?'Certo!':'Não foi.'}</b> ${esc(q.e)}</div><p><button id="bSeg">Seguir</button></p>`;$('#bSeg').onclick=seguir})}
+   $('#fb').innerHTML=`<div class="fb">Resposta registrada.</div><p><button id="bSeg">Seguir</button></p>`;$('#bSeg').onclick=seguir})}
  else{resp.innerHTML=`<label>Sua resposta (mínimo de ${q.letras} letras)</label><textarea id="ta" spellcheck="false"></textarea><div class="linha"><span id="cont" class="peq">0 letras</span><span style="flex:1"></span><button id="bEnv">Enviar resposta</button></div>`;
   const ta=$('#ta'),mon=monitorar(ta);ta.addEventListener('input',()=>{$('#cont').textContent=ta.value.replace(/\s/g,'').length+' letras'});
   ta.addEventListener('keydown',ev=>{if((ev.ctrlKey||ev.metaKey)&&ev.key.toLowerCase()==='v'){ev.preventDefault();mon.colagens++;toast('Aqui não pode colar. ✋')}});ta.focus();
@@ -609,27 +609,26 @@ function mostrarPergunta(u,q,titulo,gravar,seguir){const ind=u.inds[q.i];
    if(!confirm('Enviar? Depois de enviar, não dá para mudar.'))return;
    const c=corrigirTxt(q,v,mon);ta.disabled=true;$('#bEnv').disabled=true;
    gravar({tipo:'txt',r:c.r,txt:v,achou:c.achou,faltou:c.faltou,sus:c.sus,mot:c.mot,teclas:mon.teclas,colagens:mon.colagens,t:Date.now()});
-   const cl=c.r===1?'ok':c.r>0?'meio':'no';
-   const msg=c.sus>=3?`<b>Resposta recusada.</b> O texto parece não ter sido digitado por você (${esc(c.mot.join('; '))}). Ela vale 0, e o professor vai conversar com você.`:
-    c.r===1?`<b>Resposta aceita!</b> Você falou de: ${esc(c.achou.join(', '))}.`:
-    `<b>${c.r>0?'Aceita em parte.':'Não aceita.'}</b> ${c.achou.length?'Você falou de: '+esc(c.achou.join(', '))+'. ':''}Faltou: ${esc(c.faltou.join(', '))}.${c.letras<q.letras?' O texto ficou curto.':''}`;
-   $('#fb').innerHTML=`<div class="fb ${cl}">${msg}<div class="peq">O professor também lê a sua resposta e pode mudar a correção.</div></div><p><button id="bSeg">Seguir</button></p>`;$('#bSeg').onclick=seguir}}}
+   const msg=c.sus>=3?'<b>Atenção:</b> este texto não parece ter sido digitado por você. O professor vai conversar com você.':'Resposta registrada.';
+   $('#fb').innerHTML=`<div class="fb">${msg}<div class="peq">O professor lê todas as respostas.</div></div><p><button id="bSeg">Seguir</button></p>`;$('#bSeg').onclick=seguir}}}
 document.addEventListener('copy',ev=>{if(ev.target.closest&&ev.target.closest('.nosel')){ev.preventDefault();toast('Copiar a pergunta não vale. 😉')}});
 document.addEventListener('contextmenu',ev=>{if(ev.target.closest&&ev.target.closest('.nosel'))ev.preventDefault()});
 $('#bMapa').onclick=()=>S?telaMapa():telaInicio();
-// ===================== PLANILHA DO PROFESSOR (Apps Script em planilha/Codigo.gs) =====================
-// Mesma planilha do Arquipélago Byte v2. Com o Codigo.gs novo, os salvamentos da recuperação vão para a aba "Recuperacao".
+// ===================== PLANILHA DO PROFESSOR (o mesmo Codigo.gs do Arquipélago Byte, já implantado) =====================
+// Usa o formato que o Codigo.gs atual já aceita: POST {nome,codigo,data,ts,pontos,estrelas,S} e GET ?chave=...
+// Os salvamentos ficam na aba "Salvamentos", um por aluno (pelo nome). O jogo novo sobrescreve a linha do jogo antigo.
 const NUVEM_URL='https://script.google.com/macros/s/AKfycbwhs88zp65mWywlGxEX1MX3ypUHUXSfAhyXv6EidAdEKqi5LzE9sZJQ259t1AVFU-J_/exec';
-const SUFIXO=' • REC'; // evita misturar com os salvamentos do jogo v2 se o Codigo.gs antigo ainda estiver no ar
+const CHAVE_NUVEM='byte2026';
 let envioTimer=null;
 function agendarEnvio(){if(!NUVEM_URL||!S)return;clearTimeout(envioTimer);envioTimer=setTimeout(()=>nuvemEnviar(S),2500)}
-async function nuvemEnviar(s){try{const nA=UCS.filter(u=>{const o=S;S=s;const f=resumoUC(u).final;S=o;return f==='A'}).length;
+async function nuvemEnviar(s){try{const o=S;S=s;let nA=0;try{nA=UCS.filter(u=>resumoUC(u).final==='A').length}finally{S=o}
  await fetch(NUVEM_URL,{method:'POST',mode:'no-cors',headers:{'Content-Type':'text/plain;charset=utf-8'},
-  body:JSON.stringify({jogo:'rec',nome:s.nome+SUFIXO,codigo:s.cod,data:new Date().toLocaleString('pt-BR'),ts:s.ts||0,pontos:nA,estrelas:Object.values(s.ucs).reduce((a,e)=>a+e.niv.filter(Boolean).length,0),S:s})});return true}catch(e){return false}}
-async function nuvemRetomar(nome,cod){if(!NUVEM_URL)return null;try{const r=await fetch(NUVEM_URL+'?retomar=1&nome='+encodeURIComponent(nome+SUFIXO)+'&codigo='+encodeURIComponent(cod)+'&t='+Date.now());const d=await r.json();return d.ok?d:null}catch(e){return null}}
+  body:JSON.stringify({nome:s.nome,codigo:s.cod,data:new Date().toLocaleString('pt-BR'),ts:s.ts||0,pontos:nA,estrelas:Object.values(s.ucs).reduce((a,e)=>a+e.niv.filter(Boolean).length,0),S:s})});return true}catch(e){return false}}
+async function nuvemLista(chave){const r=await fetch(NUVEM_URL+'?chave='+encodeURIComponent(chave)+'&t='+Date.now());const d=await r.json();
+ if(!d.ok)throw new Error(d.erro==='senha'?'A planilha recusou a senha.':'Erro na planilha.');return(d.lista||[]).filter(x=>x&&x.S&&x.S.jogo==='rec').map(x=>x.S)}
+async function nuvemRetomar(nome,cod){if(!NUVEM_URL)return null;try{const l=await nuvemLista(CHAVE_NUVEM);const s=l.find(x=>normNome(x.nome)===normNome(nome)&&x.cod===cod);return s?{S:s}:null}catch(e){return null}}
 async function nuvemBaixar(chave){if(!NUVEM_URL)return{erro:'Planilha não configurada.'};
- try{const r=await fetch(NUVEM_URL+'?jogo=rec&chave='+encodeURIComponent(chave)+'&t='+Date.now());const d=await r.json();if(!d.ok)return{erro:d.erro==='senha'?'A planilha recusou a senha.':'Erro na planilha.'};
-  return{lista:(d.lista||[]).filter(x=>x&&x.S&&x.S.jogo==='rec').map(x=>x.S)}}catch(e){return{erro:'Sem conexão com a planilha.'}}}
+ try{return{lista:await nuvemLista(chave)}}catch(e){return{erro:e.message&&e.message.startsWith('A planilha')?e.message:'Sem conexão com a planilha.'}}}
 setInterval(()=>{if(S)agendarEnvio()},90000);
 // ===================== ÁREA DO PROFESSOR =====================
 const SENHA_PROF='byte2026';const AJ_KEY='arqRec_prof_aj',ALU_KEY='arqRec_prof_alunos';
@@ -641,11 +640,11 @@ function alunosLocais(){const L={};try{const b=JSON.parse(localStorage.getItem(A
  return L}
 function comAluno(s,f){const o=S;S=s;try{return f()}finally{S=o}}
 $('#bProf').onclick=()=>{if(PROF)return telaProf();const p=prompt('Senha do professor:');if(p===null)return;if(p.trim()!==SENHA_PROF){toast('Senha errada.');return}PROF={chave:p.trim()};ajLer();telaProf()};
-function telaProf(){const L=alunosLocais();PROF.L=L;const lista=Object.values(L).sort((a,b)=>a.chamada-b.chamada);
- const linhas=lista.map(s=>comAluno(s,()=>`<tr><td><a href="#" data-n="${normNome(s.nome)}">${esc(s.nome)}</a></td><td>${s.chamada}</td><td>${s.X}</td>${UCS.map(u=>{const r=resumoUC(u);return`<td>${r.final?`<span class="selo ${r.final}" style="position:static">${r.final}</span>`:r.feitos+'/10'}${r.tent?`<div class="peq">${r.tent} rec.${r.recOk&&r.m!=='A'?' ✓':''}</div>`:''}</td>`}).join('')}<td>${susp(s)}</td></tr>`)).join('');
+function telaProf(){const L=alunosLocais();PROF.L=L;const lista=Object.values(L).sort((a,b)=>a.nome.localeCompare(b.nome,'pt'));
+ const linhas=lista.map(s=>comAluno(s,()=>`<tr><td><a href="#" data-n="${normNome(s.nome)}">${esc(s.nome)}</a></td><td>${s.X}</td>${UCS.map(u=>{const r=resumoUC(u);return`<td>${r.final?`<span class="selo ${r.final}" style="position:static">${r.final}</span>`:r.feitos+'/10'}${r.tent?`<div class="peq">${r.tent} rec.${r.recOk&&r.m!=='A'?' ✓':''}</div>`:''}</td>`}).join('')}<td>${susp(s)}</td></tr>`)).join('');
  app.innerHTML=`<div class="card"><div class="linha"><h2 style="margin:0">Área do Professor</h2><span style="flex:1"></span><button id="pBaixar">Baixar da planilha</button><button class="sec" id="pCsv">Exportar CSV</button><button class="sec" id="pInd">Relatório por indicador</button><button class="sec" id="pSair">Sair</button></div>
  <p class="peq">${lista.length} aluno(s). A = menção final (inclui recuperação). "rec." = tentativas de recuperação; ✓ = recuperou. ⚠️ = dissertativas com suspeita de IA ou colagem.</p>
- <div style="overflow:auto"><table><tr><th>Aluno</th><th>nº</th><th>X</th>${UCS.map(u=>`<th title="${esc(u.uc)}">${esc(u.nome)}</th>`).join('')}<th>⚠️</th></tr>${linhas||'<tr><td colspan="13">Nenhum aluno ainda. Clique em "Baixar da planilha".</td></tr>'}</table></div></div>`;
+ <div style="overflow:auto"><table><tr><th>Aluno</th><th>X</th>${UCS.map(u=>`<th title="${esc(u.uc)}">${esc(u.nome)}</th>`).join('')}<th>⚠️</th></tr>${linhas||'<tr><td colspan="12">Nenhum aluno ainda. Clique em "Baixar da planilha".</td></tr>'}</table></div></div>`;
  $('#pSair').onclick=()=>{PROF=null;S?telaMapa():telaInicio()};
  $('#pBaixar').onclick=async()=>{$('#pBaixar').disabled=true;const r=await nuvemBaixar(PROF.chave);$('#pBaixar').disabled=false;if(r.erro){toast(r.erro,4000);return}
   const b=(()=>{try{return JSON.parse(localStorage.getItem(ALU_KEY)||'{}')}catch(e){return{}}})();let n=0;for(const s of r.lista){const k=normNome(s.nome);if(!b[k]||(s.ts||0)>(b[k].ts||0)){b[k]=s;n++}}
@@ -665,7 +664,7 @@ function telaAluno(s){comAluno(s,()=>{const blocos=UCS.map(u=>{const e=s.ucs[u.i
     <div class="linha peq">Correção: <select data-u="${u.id}" data-k="${k}"><option value="">automática (${x.r})</option><option value="1" ${aj===1?'selected':''}>aceita (1)</option><option value="0.5" ${aj===0.5?'selected':''}>em parte (0,5)</option><option value="0" ${aj===0?'selected':''}>não aceita (0)</option></select></div>`;
    return`<div style="background:${cor};border-radius:10px;padding:8px;margin:6px 0"><b>${rot}</b> <span class="tag">Ind. ${q.i}</span> ${esc(qt.split('\n\n')[0])}<div>${det}</div></div>`}).join('');
   return`<h3>${esc(u.nome)} ${r.final?`<span class="selo ${r.final}" style="position:static">${r.final}</span>`:''}</h3><p class="peq">Níveis ${r.feitos}/10 (${r.pn} pts) · chefão ${r.pc}/5 · ${Math.round(r.pct*100)}% · menção ${r.m||'—'} · recuperações ${r.tent}${r.recOk?' (recuperou)':''}</p>${itens}`}).join('');
- app.innerHTML=`<div class="card"><div class="linha"><button class="sec" id="pVolta">← Lista</button><h2 style="margin:0">${esc(s.nome)} · nº ${s.chamada} · X = ${s.X} · código ${s.cod}</h2></div><p class="peq">Mudar a correção recalcula a menção só aqui, na sua Área do Professor (o aluno continua vendo a correção automática).</p>${blocos}</div>`});
+ app.innerHTML=`<div class="card"><div class="linha"><button class="sec" id="pVolta">← Lista</button><h2 style="margin:0">${esc(s.nome)} · X = ${s.X} · código ${s.cod}</h2></div><p class="peq">Mudar a correção recalcula a menção só aqui, na sua Área do Professor (o aluno não vê nota durante o jogo; só a menção da ilha ao terminar).</p>${blocos}</div>`});
  $('#pVolta').onclick=telaProf;
  app.querySelectorAll('select[data-k]').forEach(sel=>sel.onchange=()=>{const n=normNome(s.nome);AJ[n]=AJ[n]||{};const k=sel.dataset.u+'|'+sel.dataset.k;if(sel.value==='')delete AJ[n][k];else AJ[n][k]=+sel.value;ajGravar();telaAluno(s)})}
 function porIndicador(s){const R={};comAluno(s,()=>{for(const u of UCS){const e=s.ucs[u.id];if(!e)continue;for(const{k,q,x}of respostas(u,e)){const key=u.id+'.'+q.i;R[key]=R[key]||[0,0];R[key][0]+=ajust(u.id,k,x.r);R[key][1]++}}});return R}
@@ -673,8 +672,8 @@ function telaIndicadores(lista){const cols=UCS.flatMap(u=>Object.keys(u.inds).ma
  const linhas=lista.map(s=>{const R=porIndicador(s);return`<tr><td>${esc(s.nome)}</td>${cols.map(([u,n])=>{const v=R[u.id+'.'+n];if(!v)return'<td></td>';const p=v[0]/v[1];return`<td style="background:${p>=.7?'#d8f3e3':p>=.5?'#fff1c7':'#fde0e0'}">${Math.round(p*100)}%<div class="peq">${v[1]}q</div></td>`}).join('')}</tr>`}).join('');
  app.innerHTML=`<div class="card"><div class="linha"><button class="sec" id="pVolta">← Lista</button><h2 style="margin:0">Acertos por indicador</h2></div><p class="peq">Percentual de acerto nas perguntas de cada indicador (níveis, chefão e recuperação). Verde ≥ 70%, amarelo ≥ 50%. Passe o mouse no cabeçalho para ler o indicador.</p>
  <div style="overflow:auto"><table><tr><th>Aluno</th>${cols.map(([u,n])=>`<th title="${esc(u.inds[n])}">${esc(u.id.toUpperCase())} ${n}</th>`).join('')}</tr>${linhas}</table></div></div>`;$('#pVolta').onclick=telaProf}
-function baixarCSV(lista){const cab=['Aluno','nº','X','código',...UCS.flatMap(u=>[u.nome+' (menção)',u.nome+' (% inicial)',u.nome+' (recuperações)'])];
- const L=[cab,...lista.map(s=>comAluno(s,()=>[s.nome,s.chamada,s.X,s.cod,...UCS.flatMap(u=>{const r=resumoUC(u);return[r.final||'',r.m?Math.round(r.pct*100):'',r.tent]})]))];
- const csv='﻿'+L.map(l=>l.map(v=>`"${String(v).replace(/"/g,'""')}"`).join(';')).join('\n');const a=document.createElement('a');a.href=URL.createObjectURL(new Blob([csv],{type:'text/csv'}));a.download='recuperacao_202600029.csv';a.click()}
+function baixarCSV(lista){const cab=['Aluno','X','código',...UCS.flatMap(u=>[u.nome+' (menção)',u.nome+' (% inicial)',u.nome+' (recuperações)'])];
+ const L=[cab,...lista.map(s=>comAluno(s,()=>[s.nome,s.X,s.cod,...UCS.flatMap(u=>{const r=resumoUC(u);return[r.final||'',r.m?Math.round(r.pct*100):'',r.tent]})]))];
+ const csv='﻿'+L.map(l=>l.map(v=>`"${String(v).replace(/"/g,'""')}"`).join(';')).join('\n');const a=document.createElement('a');a.href=URL.createObjectURL(new Blob([csv],{type:'text/csv'}));a.download='arquipelago_byte_202600029.csv';a.click()}
 telaInicio();
 </script></body></html>
